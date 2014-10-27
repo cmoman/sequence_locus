@@ -178,6 +178,7 @@ class MainWidget(QtGui.QWidget):
         
         
     def clearGraph(self):
+        #perhaps create a loop and clear each of the graphs.
         self.widget1.canvas.clear()
         self.widget1.canvas.draw()
 
@@ -210,7 +211,7 @@ class MainWidget(QtGui.QWidget):
         self.widget1.canvas.draw()
         
         print('123')
-        #print (self.findChildren())
+        print (self.findChildren(InputDial))
         
         
         
