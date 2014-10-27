@@ -14,7 +14,7 @@ from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4agg import NavigationToolbar2QTAgg as NavigationToolbar
 from matplotlib.figure import Figure
 
-from sequential_clearance import SequentialClearance
+from sequence_calc import SequenceCalcs
 
 
 
@@ -60,9 +60,18 @@ class MplCanvas(FigureCanvas):
             self.z0_bh = self.fig.add_subplot(2,5,7)
             self.V0I2_if = self.fig.add_subplot(2,5,8, projection = 'polar')        
             self.V0I2_bh = self.fig.add_subplot(2,5,9, projection = 'polar')
-            self.V0thresh = self.fig.add_subplot(2,5,10)    
+            self.V0thresh = self.fig.add_subplot(2,5,10)   
             
-               
+            
+def adjust_spines(ax):
+    ax.spines['left'].set_position('zero')
+    ax.spines['right'].set_color('none')
+    ax.spines['bottom'].set_position('zero')
+    ax.spines['top'].set_color('none')
+    ax.spines['left'].set_smart_bounds(True)
+    ax.spines['bottom'].set_smart_bounds(True)
+    ax.xaxis.set_ticks_position('bottom')
+    ax.yaxis.set_ticks_position('left')    
             
             
 class MplWidget(QtGui.QWidget):
@@ -82,6 +91,7 @@ class InputDial(QtGui.QWidget):
     def __init__(self, name, tooltip=None, min=0, max=100, radioB = False):
         super(InputDial, self).__init__()
         self.setToolTip(tooltip)
+        self.objectName=name
         self.layout = QtGui.QVBoxLayout()
         self.label = QtGui.QLabel(name)
         self.dial = QtGui.QDial()
@@ -114,7 +124,7 @@ class MainWidget(QtGui.QWidget):
     def __init__(self):
         super(MainWidget, self).__init__()
         
-        self.calculation = SequentialClearance()
+        self.calc = SequenceCalcs()
 
         self.widget1 = MplWidget(10)
         self.widget2 = MplWidget(10)
@@ -164,6 +174,8 @@ class MainWidget(QtGui.QWidget):
         self.pushButton.clicked.connect(self.clearGraph)
         self.pushButton2.clicked.connect(self.doCalculation)
         
+        self.diallist = self.findChildren(InputDial)
+        
         
     def clearGraph(self):
         self.widget1.canvas.clear()
@@ -172,15 +184,23 @@ class MainWidget(QtGui.QWidget):
         
     def doCalculation(self):
         #self.clearGraph()
-        self.calculation.calc(self.Rf.value(),self.R_NER.value())
+        self.calc.calc(self.Rf.value(),self.R_NER.value())
         
         
         self.widget1.canvas.z2_if.clear()
-        print (self.calculation.result2()[0], self.calculation.result2()[1])
-        self.widget1.canvas.z2_if.plot(self.calculation.result2()[0],self.calculation.result2()[1])
+        self.widget1.canvas.z2_if.plot(self.calc.z2_locus()[0],self.calc.z2_locus()[1],'ro')
+        self.widget1.canvas.z2_if.plot(self.calc.z2_thresholds()[0], self.calc.z2_thresholds()[1])
+        self.widget1.canvas.z2_if.plot(self.calc.z2_thresholds()[2], self.calc.z2_thresholds()[3])  
+        adjust_spines(self.widget1.canvas.z2_if)
+        
+
+        
+
         
         self.widget1.canvas.z2_bh.clear()
-        self.widget1.canvas.z2_bh.plot(self.calculation.result1()[0], self.calculation.result1()[1])
+        self.widget1.canvas.z2_bh.plot(self.calc.z2_thresholds()[0], self.calc.z2_thresholds()[1])
+        self.widget1.canvas.z2_bh.plot(self.calc.z2_thresholds()[2], self.calc.z2_thresholds()[3])  
+        adjust_spines(self.widget1.canvas.z2_bh)
         
         self.widget1.canvas.V2thresh.bar([1,2,3],[2,3,5])
         self.widget1.canvas.V2thresh.set_xticks(np.arange(3),('a2','k2','a0'))
@@ -188,6 +208,9 @@ class MainWidget(QtGui.QWidget):
         #self.widget1.canvas.V2thresh.set_xticklabels(('a','b','c'))
         
         self.widget1.canvas.draw()
+        
+        print('123')
+        #print (self.findChildren())
         
         
         
