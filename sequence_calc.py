@@ -5,6 +5,24 @@
 # Created: 24/10/14
 
 import numpy as np
+import math
+import cmath
+
+def parallel(x,y):
+    z = 1/(1/x+1/y)
+    return z
+
+def series(x,y):
+    z = x + y
+    return z
+
+def c_to_ohms(mf):
+    omega = 2 * math.pi * 50
+    z = 1/(mf/100000) * omega *1j
+    return z
+    
+
+
 
 
 class SequenceCalcs(object):
