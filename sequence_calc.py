@@ -45,6 +45,12 @@ class Relay(object):
         self.V1=0+0j
         self.V2=0+0j
         self.V0=0+0j
+
+        #need to check what the defaults are
+        self.a0_setting = 0.1
+        self.a2_setting = 0.2
+        self.k2_setting = 0.1
+        
         
     def z2(self):
         z = self.V2/self.I2
@@ -53,6 +59,19 @@ class Relay(object):
     def z0(self):
         z=self.V0/self.I0
         return z
+    
+    def a0(self):
+        z = abs(self.I0)/abs(self.I1)
+        return z
+    
+    def a2(self):
+        z= abs(self.I2)/abs(self.I1)
+        return z
+    
+    def k2(self):
+        z = abs(self.I0)/abs(self.I2)
+        return z
+    
     
     
 
@@ -66,6 +85,8 @@ class Threshold(object):
 
 class SequenceCalcs(object):
     def __init__(self):
+        
+        self.R_fault=0
         
         self.z1_src=0+0j
         self.z2_src=0+0j
@@ -95,6 +116,8 @@ class SequenceCalcs(object):
         
         
     def testCase(self):
+        
+        self.R_fault=40
         self.z1_src=0.1+0.5j
         self.z2_src=0.1+0.5j
         
@@ -141,7 +164,7 @@ class SequenceCalcs(object):
         self.z2 = parallel((self.z2_src+self.tx2),self.z2_load)
         self.z0 = parallel((self.tx0+3*self.R_NER), self.cap_line_adj)
         
-        If = (v1/math.sqrt(3))/(self.z1+self.z2+self.z0)
+        If = (v1/math.sqrt(3))/(self.z1+self.z2+self.z0+self.R_fault)
         
         return If
     
@@ -173,7 +196,8 @@ if __name__=='__main__':
     ###populate with dummy variable
     
     app.testCase()
-    app.calcIf(33000)
+    iIF = app.calcIf(33000)
+    app.calcBranches(iIF)
     
     
     
