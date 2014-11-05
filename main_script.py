@@ -87,6 +87,13 @@ class MplWidget(QtGui.QWidget):
         
         self.setLayout(self.vbl)
         
+class ControlDial(QtGui.QDial):
+    '''This was/is experimental.  It may still have a role to play in the formatting of the dials'''
+    def __init__(self, parent, size):
+        super(ControlDial, self).__init__()
+        self.setMaximumSize(size)
+
+        
 class InputDial(QtGui.QWidget):
     def __init__(self, name, tooltip=None, min=0, max=100, radioB = False):
         super(InputDial, self).__init__()
@@ -94,13 +101,17 @@ class InputDial(QtGui.QWidget):
         self.objectName=name
         self.layout = QtGui.QVBoxLayout()
         self.label = QtGui.QLabel(name)
-        self.dial = QtGui.QDial()
+        
+        self.dial = ControlDial(self, QtCore.QSize(50,50))
+        #self.dial = QtGui.QDial()
         self.dial.setMinimum(min)
         self.dial.setMaximum(max)
+        
         self.spinBox = QtGui.QSpinBox()
         self.spinBox.setMinimum(min)
         self.spinBox.setMaximum(max)
         self.spinBox.setValue(1)
+
         self.layout.addWidget(self.label)
         self.layout.addWidget(self.dial)
         self.layout.addWidget(self.spinBox)
@@ -112,11 +123,20 @@ class InputDial(QtGui.QWidget):
         
         self.setLayout(self.layout)
         
+        self.setFixedSize(150,150) # this works
+        
+        self.setMaximumSize(150,150) # this 
+        
     def value(self):
         return self.dial.value()
     
     def setValue(self, value):
         self.spinBox.setValue(value)
+
+    
+
+        
+
         
         
         
@@ -149,7 +169,9 @@ class MainWidget(QtGui.QWidget):
 
         
         self.Rf = InputDial('Fault Resistance', 'Ohms', 0, 400)
+    
         self.R_NER = InputDial('NER', 'Neutral Earthing Resistor in ohms', 0, 50)
+        #self.R_NER.setMaximumSize(150,150)
         self.CapFaultCct = InputDial('Cap Fault CCT', 'circuit capacitance in microfarads', 0, 500)
         self.CapAdjacent = InputDial('Cap adjacent', 'Sum of adjacent circuits capacitance in microfarads', 0, 500)
         self.relayInFront = InputDial('3I0 current Relay In Front', 'Current seen by relay in front of fault', 0, 10000, True)
