@@ -72,6 +72,12 @@ class Relay(object):
         z = abs(self.I0)/abs(self.I2)
         return z
     
+    def qualRatios(self):
+        a = [self.a0(), self.a2(), self.k2()]
+        return a
+    
+    
+    
     
     
 
@@ -153,11 +159,14 @@ class SequenceCalcs(object):
         return list(self.y),list(self.x )  
     
     def z2_locus(self):
-        return 1,1
+        return (self.relay_flt.z2().real,self.relay_flt.z2().imag)
     
     def z2_thresholds(self):
         return [5,2,1],[1,2,5],[-5,-2,-1],[-1,-2,-5]
     
+    def qualRatio(self):
+        return self.relay_flt.qualRatios()
+
     def calcIf(self,v1):
         
         self.z1 = parallel((self.z1_src+self.tx1),self.z1_load)
