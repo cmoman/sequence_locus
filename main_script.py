@@ -146,6 +146,7 @@ class MainWidget(QtGui.QWidget):
         
         self.calc = SequenceCalcs()
 
+
         self.widget1 = MplWidget(10)
         self.widget2 = MplWidget(10)
         
@@ -207,6 +208,11 @@ class MainWidget(QtGui.QWidget):
         
     def doCalculation(self):
         #self.clearGraph()
+        
+        self.calc.testCase()
+        Iff = self.calc.calcIf(33000)
+        self.calc.calcBranches(Iff)        
+        
         self.calc.calc(self.Rf.value(),self.R_NER.value())
         
         
@@ -226,14 +232,15 @@ class MainWidget(QtGui.QWidget):
         adjust_spines(self.widget1.canvas.z2_bh)
         
         self.widget1.canvas.V2thresh.bar([1,2,3],[2,3,5])
+        self.widget1.canvas.V2thresh.bar([5,6,7],self.calc.qualRatio())
         self.widget1.canvas.V2thresh.set_xticks(np.arange(3),('a2','k2','a0'))
         self.widget1.canvas.V2thresh.set_xlabel('xlable')
         #self.widget1.canvas.V2thresh.set_xticklabels(('a','b','c'))
         
         self.widget1.canvas.draw()
         
-        print('123')
-        print (self.findChildren(InputDial))
+        #print('123')
+        #print (self.findChildren(InputDial))
         
         
         
