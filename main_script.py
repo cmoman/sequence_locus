@@ -10,6 +10,8 @@ import numpy as np
 
 from PyQt4 import QtCore, QtGui, QtSvg
 
+from PyQt4.QtCore import pyqtSignal, pyqtSlot
+
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4agg import NavigationToolbar2QTAgg as NavigationToolbar
 from matplotlib.figure import Figure
@@ -95,6 +97,9 @@ class ControlDial(QtGui.QDial):
 
         
 class InputDial(QtGui.QWidget):
+    
+    valueChanged =pyqtSignal()
+    
     def __init__(self, name, tooltip=None, min=0, max=100, radioB = False):
         super(InputDial, self).__init__()
         self.setToolTip(tooltip)
@@ -117,6 +122,8 @@ class InputDial(QtGui.QWidget):
         self.layout.addWidget(self.spinBox)
         self.connect(self.dial, QtCore.SIGNAL('valueChanged(int)'), self.spinBox, QtCore.SLOT('setValue(int)'))
         
+        self.connect(self.spinBox, QtCore.SIGNAL('valueChanged(int)'), self.valueChange)
+        
         if radioB == True:
             self.radioButton = QtGui.QRadioButton('select to fix')
             self.layout.addWidget(self.radioButton)
@@ -132,6 +139,14 @@ class InputDial(QtGui.QWidget):
     
     def setValue(self, value):
         self.spinBox.setValue(value)
+        
+        
+        
+    def valueChange(self):
+        
+        print('emit signal')
+
+        self.valueChanged.emit()
 
     
 
@@ -143,6 +158,8 @@ class InputDial(QtGui.QWidget):
 class MainWidget(QtGui.QWidget):
     def __init__(self):
         super(MainWidget, self).__init__()
+        
+        #instantiate calculation class
         
         self.calc = SequenceCalcs()
 
@@ -199,6 +216,16 @@ class MainWidget(QtGui.QWidget):
         
         self.diallist = self.findChildren(InputDial)
         
+        self.connect(self.R_NER, QtCore.SIGNAL('valueChanged()'), self.updateNER)
+        
+        self.calc.testCase()
+                     
+    def updateNER(self):
+        self.calc.R_NER= self.R_NER.value()
+        print(self.calc.R_NER)
+        print ('updateting NER')
+        self.doCalculation()
+        
         
     def clearGraph(self):
         #perhaps create a loop and clear each of the graphs.
@@ -209,14 +236,17 @@ class MainWidget(QtGui.QWidget):
     def doCalculation(self):
         #self.clearGraph()
         
-        self.calc.testCase()
-        Iff = self.calc.calcIf(33000)
-        self.calc.calcBranches(Iff)        
         
-        self.calc.calc(self.Rf.value(),self.R_NER.value())
+        #Iff = self.calc.calcIf()
+        #self.calc.calcBranches(Iff)
+        
+        self.calc.updateCalc()
+        
+        #self.calc.calc(self.Rf.value(),self.R_NER.value())
         
         
         self.widget1.canvas.z2_if.clear()
+        # working on
         self.widget1.canvas.z2_if.plot(self.calc.z2_locus()[0],self.calc.z2_locus()[1],'ro')
         self.widget1.canvas.z2_if.plot(self.calc.z2_thresholds()[0], self.calc.z2_thresholds()[1])
         self.widget1.canvas.z2_if.plot(self.calc.z2_thresholds()[2], self.calc.z2_thresholds()[3])  

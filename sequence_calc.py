@@ -92,6 +92,8 @@ class Threshold(object):
 class SequenceCalcs(object):
     def __init__(self):
         
+        self.pv = 33000
+        
         self.R_fault=0
         
         self.z1_src=0+0j
@@ -159,23 +161,34 @@ class SequenceCalcs(object):
         return list(self.y),list(self.x )  
     
     def z2_locus(self):
-        return (self.relay_flt.z2().real,self.relay_flt.z2().imag)
+        print('z2 locus called')
+        
+        return (self.relay_flt.z0().real,self.relay_flt.z0().imag)
     
     def z2_thresholds(self):
         return [5,2,1],[1,2,5],[-5,-2,-1],[-1,-2,-5]
     
     def qualRatio(self):
         return self.relay_flt.qualRatios()
+    
+    def updateCalc(self):
+        self.calcBranches(self.calcIf())
 
-    def calcIf(self,v1):
+    def calcIf(self):
+        
+        print('calcIf called')
         
         self.z1 = parallel((self.z1_src+self.tx1),self.z1_load)
         self.z2 = parallel((self.z2_src+self.tx2),self.z2_load)
         self.z0 = parallel((self.tx0+3*self.R_NER), self.cap_line_adj)
         
-        If = (v1/math.sqrt(3))/(self.z1+self.z2+self.z0+self.R_fault)
+        If = (self.pv/math.sqrt(3))/(self.z1+self.z2+self.z0+self.R_fault)
+        
+        print(If)
         
         return If
+    
+    
     
     def calcBranches(self,If ):
         
