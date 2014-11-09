@@ -53,7 +53,7 @@ class MplCanvas(FigureCanvas):
             self.ax6 = self.fig.add_subplot(3,2,6, projection = 'polar')      
             
         elif nplots ==10:
-            self.z2_if = self.fig.add_subplot(2,5,1)
+            self.z2_if = self.fig.add_subplot(2,5,1)        
             self.z2_bh= self.fig.add_subplot(2,5,2)
             self.V2I2_if = self.fig.add_subplot(2,5,3, projection = 'polar')
             self.V2I2_bh= self.fig.add_subplot(2,5,4, projection = 'polar')        
@@ -246,10 +246,13 @@ class MainWidget(QtGui.QWidget):
         
         
         self.widget1.canvas.z2_if.clear()
-        # working on
-        self.widget1.canvas.z2_if.plot(self.calc.z2_locus()[0],self.calc.z2_locus()[1],'ro')
+        self.widget1.canvas.z2_if.set_title('Z2 fault cct')
+        l, = self.widget1.canvas.z2_if.plot(self.calc.z2_locus()[0],self.calc.z2_locus()[1],'ro')
+        #l.set_color('green')
+        
         self.widget1.canvas.z2_if.plot(self.calc.z2_thresholds()[0], self.calc.z2_thresholds()[1])
-        self.widget1.canvas.z2_if.plot(self.calc.z2_thresholds()[2], self.calc.z2_thresholds()[3])  
+        self.widget1.canvas.z2_if.plot(self.calc.z2_thresholds()[2], self.calc.z2_thresholds()[3])
+        
         adjust_spines(self.widget1.canvas.z2_if)
         
 
@@ -257,6 +260,7 @@ class MainWidget(QtGui.QWidget):
 
         
         self.widget1.canvas.z2_bh.clear()
+        self.widget1.canvas.z2_bh.set_title('Z2 adj cct')
         self.widget1.canvas.z2_bh.plot(self.calc.z2_thresholds()[0], self.calc.z2_thresholds()[1])
         self.widget1.canvas.z2_bh.plot(self.calc.z2_thresholds()[2], self.calc.z2_thresholds()[3])  
         adjust_spines(self.widget1.canvas.z2_bh)
