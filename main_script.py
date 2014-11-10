@@ -7,6 +7,7 @@
 import sys
 import unittest
 import numpy as np
+import cmath
 
 from PyQt4 import QtCore, QtGui, QtSvg
 
@@ -53,17 +54,17 @@ class MplCanvas(FigureCanvas):
             self.ax6 = self.fig.add_subplot(3,2,6, projection = 'polar')      
             
         elif nplots ==10:
-            self.z2_if = self.fig.add_subplot(2,5,1) 
-            self.zo_if = self.fig.add_subplot(2,5,2) 
+            self.z2_flt = self.fig.add_subplot(2,5,1)    
+            self.z0_flt = self.fig.add_subplot(2,5,2) 
+            self.V2I2_flt = self.fig.add_subplot(2,5,3, projection = 'polar')
+            self.V0I0_flt = self.fig.add_subplot(2,5,4, projection = 'polar')   
+            self.thresh_flt = self.fig.add_subplot(2,5,5)
             
-            self.V2I2_if = self.fig.add_subplot(2,5,3, projection = 'polar')
-            self.V2I2_bh= self.fig.add_subplot(2,5,4, projection = 'polar')        
-            self.V2thresh = self.fig.add_subplot(2,5,5)
-            self.z2_bh= self.fig.add_subplot(2,5,6)
-            self.z0_bh = self.fig.add_subplot(2,5,7)
-            self.V0I2_if = self.fig.add_subplot(2,5,8, projection = 'polar')        
-            self.V0I2_bh = self.fig.add_subplot(2,5,9, projection = 'polar')
-            self.V0thresh = self.fig.add_subplot(2,5,10)   
+            self.z2_adj= self.fig.add_subplot(2,5,6)
+            self.z0_adj = self.fig.add_subplot(2,5,7)
+            self.V2I2_adj= self.fig.add_subplot(2,5,8, projection = 'polar') 
+            self.V0I0_adj = self.fig.add_subplot(2,5,9, projection = 'polar')
+            self.thresh_adj = self.fig.add_subplot(2,5,10)   
             
             
 def adjust_spines(ax):
@@ -145,7 +146,7 @@ class InputDial(QtGui.QWidget):
         
     def valueChange(self):
         
-        print('emit signal')
+        #print('emit signal')
 
         self.valueChanged.emit()
 
@@ -215,16 +216,30 @@ class MainWidget(QtGui.QWidget):
         self.pushButton.clicked.connect(self.clearGraph)
         self.pushButton2.clicked.connect(self.doCalculation)
         
+
+        a, = self.widget1.canvas.V2I2_flt.plot([0,2],[0,4],linewidth=1, color='blue')     
+        a, = self.widget1.canvas.V2I2_flt.plot([0,5],[0,3],linewidth=1, color='red') 
+        
         self.diallist = self.findChildren(InputDial)
         
         self.connect(self.R_NER, QtCore.SIGNAL('valueChanged()'), self.updateNER)
         
         self.calc.testCase()
+        
+        self.d = {}
+        for k in ("R_NER", "Rf"):
+            self.d[k] = getattr(self,k).value()     
+            
+
+        
                      
     def updateNER(self):
         self.calc.R_NER= self.R_NER.value()
-        print(self.calc.R_NER)
-        print ('updateting NER')
+        
+        print('break point')
+        
+        
+
         self.doCalculation()
         
         
@@ -232,50 +247,70 @@ class MainWidget(QtGui.QWidget):
         #perhaps create a loop and clear each of the graphs.
         self.widget1.canvas.clear()
         self.widget1.canvas.draw()
-
+        
         
     def doCalculation(self):
-        #self.clearGraph()
         
+        self.widget1.canvas.z2_flt.clear()
+        self.widget1.canvas.z0_flt.clear()
+        self.widget1.canvas.V2I2_flt.clear()
+        self.widget1.canvas.V0I0_flt.clear()
+        self.widget1.canvas.thresh_flt.clear()
         
-        #Iff = self.calc.calcIf()
-        #self.calc.calcBranches(Iff)
+        self.widget1.canvas.z2_adj.clear()
+        self.widget1.canvas.z0_adj.clear()
+        self.widget1.canvas.V2I2_adj.clear()
+        self.widget1.canvas.V0I0_adj.clear()
+        self.widget1.canvas.thresh_adj.clear()        
         
+
         self.calc.updateCalc()
+
+        self.widget1.canvas.z2_flt.set_title('Z2 fault cct')
+        self.widget1.canvas.z2_flt.plot(self.calc.z2_locus()[0],self.calc.z2_locus()[1],'ro')
+        self.widget1.canvas.z2_flt.plot(self.calc.z2_thresholds()[0], self.calc.z2_thresholds()[1])
+        self.widget1.canvas.z2_flt.plot(self.calc.z2_thresholds()[2], self.calc.z2_thresholds()[3])
+        adjust_spines(self.widget1.canvas.z2_flt)
         
-        #self.calc.calc(self.Rf.value(),self.R_NER.value())
         
+        #a, = self.widget1.canvas.V2I2_flt.plot([0,2],[0,4],linewidth=1, color='blue')     
+        #b, = self.widget1.canvas.V2I2_flt.plot([0,6],[0,3],linewidth=1, color='red')
+        self.widget1.canvas.V2I2_flt.plot([0,self.calc.plotV2()[1]],[0,self.calc.plotV2()[0]],linewidth=1, color='green')    
+        self.widget1.canvas.V0I0_flt.plot([0,self.calc.plotI2()[1]],[0,self.calc.plotI2()[0]],linewidth=1, color='blue')    
         
-        self.widget1.canvas.z2_if.clear()
-        self.widget1.canvas.z2_if.set_title('Z2 fault cct')
-        l, = self.widget1.canvas.z2_if.plot(self.calc.z2_locus()[0],self.calc.z2_locus()[1],'ro')
-        #l.set_color('green')
+        print self.calc.plotI2()[0]
         
-        self.widget1.canvas.z2_if.plot(self.calc.z2_thresholds()[0], self.calc.z2_thresholds()[1])
-        self.widget1.canvas.z2_if.plot(self.calc.z2_thresholds()[2], self.calc.z2_thresholds()[3])
-        
-        adjust_spines(self.widget1.canvas.z2_if)
         
 
+        N = 3
+        ind = np.arange(N)  # the x locations for the groups
+        width = 0.35
+        
+        self.widget1.canvas.thresh_flt.bar(ind,self.calc.qualRatio())
+        self.widget1.canvas.thresh_flt.set_xticks(ind+width)
+        self.widget1.canvas.thresh_flt.set_xticklabels(('a2', 'k2', 'a0'))
+        self.widget1.canvas.thresh_flt.set_xlabel('qualifying ratio')
+        
+        
+        self.widget1.canvas.z2_adj.set_title('Z2 adj cct')
+        k,= self.widget1.canvas.z2_adj.plot(self.calc.z2_thresholds()[0], self.calc.z2_thresholds()[1])
+        self.widget1.canvas.z2_adj.plot(self.calc.z2_thresholds()[2], self.calc.z2_thresholds()[3])  
+        adjust_spines(self.widget1.canvas.z2_adj)        
         
 
+        self.widget1.canvas.thresh_adj.bar(ind,self.calc.qualRatio())
+        self.widget1.canvas.thresh_adj.set_xticks(ind+width)
+        self.widget1.canvas.thresh_adj.set_xticklabels(('a2', 'k2', 'a0'))
+        self.widget1.canvas.thresh_adj.set_xlabel('qualifying ratio')   
         
-        self.widget1.canvas.z2_bh.clear()
-        self.widget1.canvas.z2_bh.set_title('Z2 adj cct')
-        self.widget1.canvas.z2_bh.plot(self.calc.z2_thresholds()[0], self.calc.z2_thresholds()[1])
-        self.widget1.canvas.z2_bh.plot(self.calc.z2_thresholds()[2], self.calc.z2_thresholds()[3])  
-        adjust_spines(self.widget1.canvas.z2_bh)
-        
-        self.widget1.canvas.V2thresh.bar([1,2,3],[2,3,5])
-        self.widget1.canvas.V2thresh.bar([5,6,7],self.calc.qualRatio())
-        self.widget1.canvas.V2thresh.set_xticks(np.arange(3),('a2','k2','a0'))
-        self.widget1.canvas.V2thresh.set_xlabel('xlable')
-        #self.widget1.canvas.V2thresh.set_xticklabels(('a','b','c'))
+
+
         
         self.widget1.canvas.draw()
         
-        #print('123')
-        #print (self.findChildren(InputDial))
+        
+        
+
         
         
         
