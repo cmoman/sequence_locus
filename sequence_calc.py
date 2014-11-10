@@ -154,14 +154,21 @@ class SequenceCalcs(object):
         self.x = np.array([1,3,5,7])*a
         self.y= np.array([2,5,6,7])*b
 
-    def result1(self):
-        return self.x,self.y
+    def plotV2(self):
+        print ('plotV2')
+        print(self.relay_flt.V2)
+        return cmath.polar(self.relay_flt.V2)
+    
+    def plotI2(self):
+        print('plotI2')
+        print (self.relay_flt.I2)
+        return cmath.polar(self.relay_flt.I2)    
     
     def result2(self):
         return list(self.y),list(self.x )  
     
     def z2_locus(self):
-        print('z2 locus called')
+        #print('z2 locus called')
         
         return (self.relay_flt.z0().real,self.relay_flt.z0().imag)
     
@@ -176,7 +183,7 @@ class SequenceCalcs(object):
 
     def calcIf(self):
         
-        print('calcIf called')
+        #print('calcIf called')
         
         self.z1 = parallel((self.z1_src+self.tx1),self.z1_load)
         self.z2 = parallel((self.z2_src+self.tx2),self.z2_load)
