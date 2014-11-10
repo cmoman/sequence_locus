@@ -155,13 +155,13 @@ class SequenceCalcs(object):
         self.y= np.array([2,5,6,7])*b
 
     def plotV2(self):
-        print ('plotV2')
-        print(self.relay_flt.V2)
+        #print ('plotV2')
+        #print(self.relay_flt.V2)
         return cmath.polar(self.relay_flt.V2)
     
     def plotI2(self):
-        print('plotI2')
-        print (self.relay_flt.I2)
+        #print('plotI2')
+        #print (self.relay_flt.I2)
         return cmath.polar(self.relay_flt.I2)    
     
     def result2(self):
