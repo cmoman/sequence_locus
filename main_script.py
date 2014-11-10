@@ -53,12 +53,13 @@ class MplCanvas(FigureCanvas):
             self.ax6 = self.fig.add_subplot(3,2,6, projection = 'polar')      
             
         elif nplots ==10:
-            self.z2_if = self.fig.add_subplot(2,5,1)        
-            self.z2_bh= self.fig.add_subplot(2,5,2)
+            self.z2_if = self.fig.add_subplot(2,5,1) 
+            self.zo_if = self.fig.add_subplot(2,5,2) 
+            
             self.V2I2_if = self.fig.add_subplot(2,5,3, projection = 'polar')
             self.V2I2_bh= self.fig.add_subplot(2,5,4, projection = 'polar')        
             self.V2thresh = self.fig.add_subplot(2,5,5)
-            self.zo_if = self.fig.add_subplot(2,5,6) 
+            self.z2_bh= self.fig.add_subplot(2,5,6)
             self.z0_bh = self.fig.add_subplot(2,5,7)
             self.V0I2_if = self.fig.add_subplot(2,5,8, projection = 'polar')        
             self.V0I2_bh = self.fig.add_subplot(2,5,9, projection = 'polar')
