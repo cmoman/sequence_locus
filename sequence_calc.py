@@ -46,7 +46,7 @@ class Relay(object):
         self.V2=0+0j
         self.V0=0+0j
 
-        #need to check what the defaults are
+        #need to check what the defaults are - confirmed as is.
         self.a0_setting = 0.1
         self.a2_setting = 0.2
         self.k2_setting = 0.1
@@ -74,6 +74,10 @@ class Relay(object):
     
     def qualRatios(self):
         a = [self.a0(), self.a2(), self.k2()]
+        
+        print('updating ratios')
+        print a
+        print self.I0
         return a
     
     
@@ -162,7 +166,37 @@ class SequenceCalcs(object):
     def plotI2(self):
         #print('plotI2')
         #print (self.relay_flt.I2)
-        return cmath.polar(self.relay_flt.I2)    
+        return cmath.polar(self.relay_flt.I2) 
+    
+    def plotV0(self):
+        #print ('plotV2')
+        #print(self.relay_flt.V2)
+        return cmath.polar(self.relay_flt.V0)
+    
+    def plotI0(self):
+        #print('plotI2')
+        #print (self.relay_flt.I2)
+        return cmath.polar(self.relay_flt.I0)   
+    
+    def plotV2adj(self):
+        #print ('plotV2')
+        #print(self.relay_flt.V2)
+        return cmath.polar(self.relay_adj.V2)
+    
+    def plotI2adj(self):
+        #print('plotI2')
+        #print (self.relay_flt.I2)
+        return cmath.polar(self.relay_adj.I2) 
+    
+    def plotV0adj(self):
+        #print ('plotV2')
+        #print(self.relay_flt.V2)
+        return cmath.polar(self.relay_adj.V0)
+    
+    def plotI0adj(self):
+        #print('plotI2')
+        #print (self.relay_flt.I2)
+        return cmath.polar(self.relay_adj.V0)     
     
     def result2(self):
         return list(self.y),list(self.x )  
@@ -177,6 +211,9 @@ class SequenceCalcs(object):
     
     def qualRatio(self):
         return self.relay_flt.qualRatios()
+    
+    def qualRatio_adj(self):
+        return self.relay_adj.qualRatios()    
     
     def updateCalc(self):
         self.calcBranches(self.calcIf())

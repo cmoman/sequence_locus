@@ -56,14 +56,14 @@ class MplCanvas(FigureCanvas):
         elif nplots ==10:
             self.z2_flt = self.fig.add_subplot(2,5,1)    
             self.z0_flt = self.fig.add_subplot(2,5,2) 
-            self.V2I2_flt = self.fig.add_subplot(2,5,3, projection = 'polar')
-            self.V0I0_flt = self.fig.add_subplot(2,5,4, projection = 'polar')   
+            self.V2V0_flt = self.fig.add_subplot(2,5,3, projection = 'polar')
+            self.I2I0_flt = self.fig.add_subplot(2,5,4, projection = 'polar')   
             self.thresh_flt = self.fig.add_subplot(2,5,5)
             
             self.z2_adj= self.fig.add_subplot(2,5,6)
             self.z0_adj = self.fig.add_subplot(2,5,7)
-            self.V2I2_adj= self.fig.add_subplot(2,5,8, projection = 'polar') 
-            self.V0I0_adj = self.fig.add_subplot(2,5,9, projection = 'polar')
+            self.V2V0_adj= self.fig.add_subplot(2,5,8, projection = 'polar') 
+            self.I2I0_adj = self.fig.add_subplot(2,5,9, projection = 'polar')
             self.thresh_adj = self.fig.add_subplot(2,5,10)   
             
             
@@ -192,17 +192,17 @@ class MainWidget(QtGui.QWidget):
     
         self.R_NER = InputDial('NER', 'Neutral Earthing Resistor in ohms', 0, 50)
         #self.R_NER.setMaximumSize(150,150)
-        self.CapFaultCct = InputDial('Cap Fault CCT', 'circuit capacitance in microfarads', 0, 500)
+        self.CapFaultCct = InputDial('Cap Faulted Cct', 'circuit capacitance in microfarads', 0, 500)
         self.CapAdjacent = InputDial('Cap adjacent', 'Sum of adjacent circuits capacitance in microfarads', 0, 500)
-        self.relayInFront = InputDial('3I0 current Relay In Front', 'Current seen by relay in front of fault', 0, 10000, True)
-        self.relayBehind= InputDial('3I0 current Relay Behind', 'Current seen by relay in front of fault', 0, 10000, True)
+        self.relay_flt = InputDial('3I0 current Relay in Fault Cct', 'Current seen by relay of faulted circuit', 0, 10000, True)
+        self.relay_adj= InputDial('3I0 current Relay Adjacent', 'Current seen by relay adjacent to faulted circuit', 0, 10000, True)
         
         layoutdials.addWidget(self.Rf)
         layoutdials.addWidget(self.R_NER)
         layoutdials.addWidget(self.CapFaultCct)
         layoutdials.addWidget(self.CapAdjacent)
-        layoutdials.addWidget(self.relayInFront)
-        layoutdials.addWidget(self.relayBehind)
+        layoutdials.addWidget(self.relay_flt)
+        layoutdials.addWidget(self.relay_adj)
         
         self.layout.addLayout(layoutdials)
         
@@ -217,8 +217,8 @@ class MainWidget(QtGui.QWidget):
         self.pushButton2.clicked.connect(self.doCalculation)
         
 
-        a, = self.widget1.canvas.V2I2_flt.plot([0,2],[0,4],linewidth=1, color='blue')     
-        a, = self.widget1.canvas.V2I2_flt.plot([0,5],[0,3],linewidth=1, color='red') 
+        a, = self.widget1.canvas.V2V0_flt.plot([0,2],[0,4],linewidth=1, color='blue')     
+        a, = self.widget1.canvas.V2V0_flt.plot([0,5],[0,3],linewidth=1, color='red') 
         
         self.diallist = self.findChildren(InputDial)
         
@@ -253,14 +253,14 @@ class MainWidget(QtGui.QWidget):
         
         self.widget1.canvas.z2_flt.clear()
         self.widget1.canvas.z0_flt.clear()
-        self.widget1.canvas.V2I2_flt.clear()
-        self.widget1.canvas.V0I0_flt.clear()
+        self.widget1.canvas.V2V0_flt.clear()
+        self.widget1.canvas.I2I0_flt.clear()
         self.widget1.canvas.thresh_flt.clear()
         
         self.widget1.canvas.z2_adj.clear()
         self.widget1.canvas.z0_adj.clear()
-        self.widget1.canvas.V2I2_adj.clear()
-        self.widget1.canvas.V0I0_adj.clear()
+        self.widget1.canvas.V2V0_adj.clear()
+        self.widget1.canvas.I2I0_adj.clear()
         self.widget1.canvas.thresh_adj.clear()        
         
 
@@ -272,13 +272,19 @@ class MainWidget(QtGui.QWidget):
         self.widget1.canvas.z2_flt.plot(self.calc.z2_thresholds()[2], self.calc.z2_thresholds()[3])
         adjust_spines(self.widget1.canvas.z2_flt)
         
+        self.widget1.canvas.z0_flt.set_title('Z0 fault cct')
+        self.widget1.canvas.z0_flt.plot(self.calc.z2_locus()[0],self.calc.z2_locus()[1],'ro')
+        self.widget1.canvas.z0_flt.plot(self.calc.z2_thresholds()[0], self.calc.z2_thresholds()[1])
+        self.widget1.canvas.z0_flt.plot(self.calc.z2_thresholds()[2], self.calc.z2_thresholds()[3])
+        adjust_spines(self.widget1.canvas.z0_flt)        
+
         
-        #a, = self.widget1.canvas.V2I2_flt.plot([0,2],[0,4],linewidth=1, color='blue')     
-        #b, = self.widget1.canvas.V2I2_flt.plot([0,6],[0,3],linewidth=1, color='red')
-        self.widget1.canvas.V2I2_flt.plot([0,self.calc.plotV2()[1]],[0,self.calc.plotV2()[0]],linewidth=1, color='green')    
-        self.widget1.canvas.V0I0_flt.plot([0,self.calc.plotI2()[1]],[0,self.calc.plotI2()[0]],linewidth=1, color='blue')    
+        self.widget1.canvas.V2V0_flt.plot([0,self.calc.plotV2()[1]],[0,self.calc.plotV2()[0]],linewidth=1, color='purple')
+        self.widget1.canvas.V2V0_flt.plot([0,self.calc.plotV0()[1]],[0,self.calc.plotV0()[0]],linewidth=1, color='green')
+        self.widget1.canvas.I2I0_flt.plot([0,self.calc.plotI2()[1]],[0,self.calc.plotI2()[0]],linewidth=1, color='purple')
+        self.widget1.canvas.I2I0_flt.plot([0,self.calc.plotI0()[1]],[0,self.calc.plotI0()[0]],linewidth=1, color='green')         
         
-        print self.calc.plotI2()[0]
+        #print self.calc.plotI2()[0]
         
         
 
@@ -295,10 +301,20 @@ class MainWidget(QtGui.QWidget):
         self.widget1.canvas.z2_adj.set_title('Z2 adj cct')
         k,= self.widget1.canvas.z2_adj.plot(self.calc.z2_thresholds()[0], self.calc.z2_thresholds()[1])
         self.widget1.canvas.z2_adj.plot(self.calc.z2_thresholds()[2], self.calc.z2_thresholds()[3])  
-        adjust_spines(self.widget1.canvas.z2_adj)        
+        adjust_spines(self.widget1.canvas.z2_adj) 
         
+        self.widget1.canvas.z0_adj.set_title('Z0 adj cct')
+        k,= self.widget1.canvas.z0_adj.plot(self.calc.z2_thresholds()[0], self.calc.z2_thresholds()[1])
+        self.widget1.canvas.z0_adj.plot(self.calc.z2_thresholds()[2], self.calc.z2_thresholds()[3])  
+        adjust_spines(self.widget1.canvas.z0_adj)          
+        
+        
+        self.widget1.canvas.V2V0_adj.plot([0,self.calc.plotV2adj()[1]],[0,self.calc.plotV2adj()[0]],linewidth=1, color='purple')
+        self.widget1.canvas.V2V0_adj.plot([0,self.calc.plotV0adj()[1]],[0,self.calc.plotV0adj()[0]],linewidth=1, color='green')
+        self.widget1.canvas.I2I0_adj.plot([0,self.calc.plotI2adj()[1]],[0,self.calc.plotI2adj()[0]],linewidth=1, color='purple')
+        self.widget1.canvas.I2I0_adj.plot([0,self.calc.plotI0adj()[1]],[0,self.calc.plotI0adj()[0]],linewidth=1, color='green') 
 
-        self.widget1.canvas.thresh_adj.bar(ind,self.calc.qualRatio())
+        self.widget1.canvas.thresh_adj.bar(ind,self.calc.qualRatio_adj())
         self.widget1.canvas.thresh_adj.set_xticks(ind+width)
         self.widget1.canvas.thresh_adj.set_xticklabels(('a2', 'k2', 'a0'))
         self.widget1.canvas.thresh_adj.set_xlabel('qualifying ratio')   
