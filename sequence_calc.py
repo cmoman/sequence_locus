@@ -49,7 +49,7 @@ def c_to_ohms(pf):
         z = 1/((pf/1000000000.0) * omega * 1j)
         return z
     
-def mva_to_ohms(mva):
+def mva_to_ohms(mva,volts):
     
     print ('mva', mva)
     
@@ -57,10 +57,12 @@ def mva_to_ohms(mva):
         return 10000000000
     
     else:
-        c = self.pv/math.sqrt(3)
-        imp_flt = (mva*100000)/(math.pow(c,2))
+        imp = math.pow(volts,2)/(mva*1000000*3.0)
         phi = math.radians(85)
-        return cmath.rect(imp_flt, phi)
+        return cmath.rect(imp, phi)        
+        
+        
+
 
 
 class Relay(object):
@@ -240,11 +242,11 @@ class SequenceCalcs(object):
         #Todo
         '''need to resolve that these do not return zero to the calculation below'''
         
-        #self.z1_load = mva_to_ohms(para["load_flt"])
-        #self.z2_load = mva_to_ohms(para["load_flt"])
+        self.z1_load = mva_to_ohms(para["load_flt"],self.pv)
+        self.z2_load = mva_to_ohms(para["load_flt"],self.pv)
         
-        #self.z1_load_adj = mva_to_ohms(para["load_adj"])
-        #self.z2_load_adj = mva_to_ohms(para["load_adj"])
+        self.z1_load_adj = mva_to_ohms(para["load_adj"],self.pv)
+        self.z2_load_adj = mva_to_ohms(para["load_adj"],self.pv)
 
         self.calcBranches(self.calcIf())
 
