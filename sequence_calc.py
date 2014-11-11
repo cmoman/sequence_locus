@@ -38,9 +38,9 @@ def c_to_ohms(mf):
 
 class Relay(object):
     def __init__(self):
-        self.I1 = 0 + 0j
-        self.I2 = 0 +0j
-        self.I0 = 0 + 0j
+        self.I1 = 1 + 0j
+        self.I2 = 1 +0j
+        self.I0 = 1 + 0j
         
         self.V1=0+0j
         self.V2=0+0j
@@ -159,55 +159,47 @@ class SequenceCalcs(object):
         self.y= np.array([2,5,6,7])*b
 
     def plotV2(self):
-        #print ('plotV2')
-        #print(self.relay_flt.V2)
         return cmath.polar(self.relay_flt.V2)
     
     def plotI2(self):
-        #print('plotI2')
-        #print (self.relay_flt.I2)
         return cmath.polar(self.relay_flt.I2) 
     
     def plotV0(self):
-        #print ('plotV2')
-        #print(self.relay_flt.V2)
         return cmath.polar(self.relay_flt.V0)
     
     def plotI0(self):
-        #print('plotI2')
-        #print (self.relay_flt.I2)
         return cmath.polar(self.relay_flt.I0)   
     
     def plotV2adj(self):
-        #print ('plotV2')
-        #print(self.relay_flt.V2)
-        return cmath.polar(self.relay_adj.V2)
+         return cmath.polar(self.relay_adj.V2)
     
     def plotI2adj(self):
-        #print('plotI2')
-        #print (self.relay_flt.I2)
         return cmath.polar(self.relay_adj.I2) 
     
     def plotV0adj(self):
-        #print ('plotV2')
-        #print(self.relay_flt.V2)
         return cmath.polar(self.relay_adj.V0)
     
     def plotI0adj(self):
-        #print('plotI2')
-        #print (self.relay_flt.I2)
-        return cmath.polar(self.relay_adj.V0)     
+         return cmath.polar(self.relay_adj.V0)     
     
-    def result2(self):
-        return list(self.y),list(self.x )  
-    
+   
     def z2_locus(self):
-        #print('z2 locus called')
-        
-        return (self.relay_flt.z0().real,self.relay_flt.z0().imag)
+        return (self.relay_flt.z2().real,self.relay_flt.z2().imag)
+    
+    def z0_locus(self):
+        return (self.relay_flt.z0().real,self.relay_flt.z0().imag) 
+    
+    def z2_locus_adj(self):
+        return (self.relay_adj.z2().real,self.relay_adj.z2().imag)
+    
+    def z0_locus_adj(self):
+        return (self.relay_adj.z0().real,self.relay_adj.z0().imag)     
     
     def z2_thresholds(self):
         return [5,2,1],[1,2,5],[-5,-2,-1],[-1,-2,-5]
+    
+    def z0_thresholds(self):
+        return [5,2,1],[1,2,5],[-5,-2,-1],[-1,-2,-5]    
     
     def qualRatio(self):
         return self.relay_flt.qualRatios()
@@ -215,7 +207,17 @@ class SequenceCalcs(object):
     def qualRatio_adj(self):
         return self.relay_adj.qualRatios()    
     
-    def updateCalc(self):
+    def updateCalc(self, para, **kwargs):
+        
+        
+        self.R_fault = para["Rf"]
+        self.R_NER = para["R_NER"]
+        self.cap_line = para["CapFaultCct"]
+        self.cap_line_adj = para["CapAdjacent"]
+        
+        
+
+        
         self.calcBranches(self.calcIf())
 
     def calcIf(self):
@@ -228,7 +230,7 @@ class SequenceCalcs(object):
         
         If = (self.pv/math.sqrt(3))/(self.z1+self.z2+self.z0+self.R_fault)
         
-        print(If)
+        #print(If)
         
         return If
     
@@ -262,7 +264,7 @@ if __name__=='__main__':
     ###populate with dummy variable
     
     app.testCase()
-    iIF = app.calcIf(33000)
+    iIF = app.calcIf()
     app.calcBranches(iIF)
     
     
