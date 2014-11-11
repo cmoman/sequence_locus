@@ -260,6 +260,8 @@ class SequenceCalcs(object):
         
         print(self.tx0,self.R_NER,self.cap_line_adj)
         
+        #test
+
         
         
         If = (self.pv/math.sqrt(3))/(self.z1+self.z2+self.z0+self.R_fault)
