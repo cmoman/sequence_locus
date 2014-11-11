@@ -153,11 +153,6 @@ class SequenceCalcs(object):
         self.z2_load_adj=10+0j        
         
 
-    
-    def calc(self,a,b):
-        self.x = np.array([1,3,5,7])*a
-        self.y= np.array([2,5,6,7])*b
-
     def plotV2(self):
         return cmath.polar(self.relay_flt.V2)
     
@@ -171,7 +166,7 @@ class SequenceCalcs(object):
         return cmath.polar(self.relay_flt.I0)   
     
     def plotV2adj(self):
-         return cmath.polar(self.relay_adj.V2)
+        return cmath.polar(self.relay_adj.V2)
     
     def plotI2adj(self):
         return cmath.polar(self.relay_adj.I2) 
@@ -180,7 +175,7 @@ class SequenceCalcs(object):
         return cmath.polar(self.relay_adj.V0)
     
     def plotI0adj(self):
-         return cmath.polar(self.relay_adj.V0)     
+        return cmath.polar(self.relay_adj.V0)     
     
    
     def z2_locus(self):
@@ -215,8 +210,25 @@ class SequenceCalcs(object):
         self.cap_line = para["CapFaultCct"]
         self.cap_line_adj = para["CapAdjacent"]
         
+        a = para["load_flt"]
+        b = para["load_adj"]
         
-
+        c = self.pv/math.sqrt(3)
+        
+        imp_flt = (a*100000)/(math.pow(c,2))
+        imp_adj = (b*100000)/(math.pow(c,2))
+        
+        print(imp_flt)
+        
+        phi = math.radians(85)
+        
+        self.z1_load = cmath.rect(imp_flt,  phi)+0.001
+        self.z2_load = cmath.rect(imp_flt,  phi)+0.001
+        
+        self.z1_load_adj = cmath.rect(imp_flt, phi)+0.001
+        self.z2_load_adj = cmath.rect(imp_flt, phi)+0.001
+        
+        
         
         self.calcBranches(self.calcIf())
 

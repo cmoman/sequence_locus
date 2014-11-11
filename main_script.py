@@ -191,12 +191,17 @@ class MainWidget(QtGui.QWidget):
         
         self.Rf = InputDial('Fault Resistance', 'Ohms', 0, 400)
     
-        self.R_NER = InputDial('NER', 'Neutral Earthing Resistor in ohms', 1, 50)
+        self.R_NER = InputDial('NER', 'Neutral Earthing Resistor in ohms', 0, 50)
         #self.R_NER.setMaximumSize(150,150)
-        self.CapFaultCct = InputDial('Cap Faulted Cct', 'circuit capacitance in microfarads', 1, 500)
-        self.CapAdjacent = InputDial('Cap adjacent', 'Sum of adjacent circuits capacitance in microfarads', 1, 500)
-        self.relay_flt = InputDial('3I0 current Relay in Fault Cct', 'Current seen by relay of faulted circuit', 1, 10000, True)
+        self.CapFaultCct = InputDial('Cap Faulted Cct', 'circuit capacitance in microfarads', 0, 500)
+        self.CapAdjacent = InputDial('Cap adjacent', 'Sum of adjacent circuits capacitance in microfarads', 0, 500)
+        self.relay_flt = InputDial('3I0 current Relay in Fault Cct', 'Current seen by relay of faulted circuit', 0, 10000, True)
+        
         self.relay_adj= InputDial('3I0 current Relay Adjacent', 'Current seen by relay adjacent to faulted circuit', 1, 10000, True)
+        
+        
+        self.load_flt= InputDial('Load faulte', 'Current seen by relay adjacent to faulted circuit', 0, 10, True)
+        self.load_adj= InputDial('Load adjacent', 'Current seen by relay adjacent to faulted circuit', 0, 10, True)
         
         layoutdials.addWidget(self.Rf)
         layoutdials.addWidget(self.R_NER)
@@ -204,6 +209,10 @@ class MainWidget(QtGui.QWidget):
         layoutdials.addWidget(self.CapAdjacent)
         layoutdials.addWidget(self.relay_flt)
         layoutdials.addWidget(self.relay_adj)
+        layoutdials.addWidget(self.load_flt)
+        layoutdials.addWidget(self.load_adj)        
+        
+        
         
         self.layout.addLayout(layoutdials)
 
@@ -220,6 +229,8 @@ class MainWidget(QtGui.QWidget):
         self.connect(self.Rf, QtCore.SIGNAL('valueChanged()'), self.doCalculation)
         self.connect(self.CapFaultCct, QtCore.SIGNAL('valueChanged()'), self.doCalculation)
         self.connect(self.CapAdjacent, QtCore.SIGNAL('valueChanged()'), self.doCalculation)
+        self.connect(self.load_flt, QtCore.SIGNAL('valueChanged()'), self.doCalculation)
+        self.connect(self.load_adj, QtCore.SIGNAL('valueChanged()'), self.doCalculation)        
         
         
 
@@ -236,7 +247,7 @@ class MainWidget(QtGui.QWidget):
     def doCalculation(self):
         
         self.d = {}
-        for k in ("R_NER", "Rf", "CapFaultCct", "CapAdjacent", "relay_flt", "relay_adj" ):
+        for k in ("R_NER", "Rf", "CapFaultCct", "CapAdjacent", "relay_flt", "relay_adj" ,"load_flt", "load_adj"):
             self.d[k] = getattr(self,k).value()       
             
         #self.calc.updateCalc(self.d)
