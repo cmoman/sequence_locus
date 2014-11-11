@@ -9,15 +9,23 @@ import math
 import cmath
 
 def parallel(x,y):
-    z = 1/(1/x+1/y)
+    
+    if abs(x)==0 or abs(y)==0:
+        z = 0
+    else:
+        z = 1/(1/x+1/y)
     return z
 
 def parallelm(x):
     sum = 0
     for i in x:
+        if abs(i)==0:
+            z =0
+            break
         j = 1.0/i
         sum += j
-    return 1.0/(sum)
+        z= 1.0/(sum)
+    return z
         
 
 def series(x,y):
@@ -31,10 +39,29 @@ def seriesm(x):
         sum += j
     return sum
 
-def c_to_ohms(mf):
-    omega = 2 * math.pi * 50
-    z = 1/(mf/100000) * omega *1j
-    return z
+def c_to_ohms(pf):
+    
+    if pf ==0:
+        return 1000000000000
+    else:
+        print (pf)
+        omega = 2 * math.pi * 50
+        z = 1/((pf/1000000000.0) * omega * 1j)
+        return z
+    
+def mva_to_ohms(mva):
+    
+    print ('mva', mva)
+    
+    if mva ==0:
+        return 10000000000
+    
+    else:
+        c = self.pv/math.sqrt(3)
+        imp_flt = (mva*100000)/(math.pow(c,2))
+        phi = math.radians(85)
+        return cmath.rect(imp_flt, phi)
+
 
 class Relay(object):
     def __init__(self):
@@ -75,9 +102,9 @@ class Relay(object):
     def qualRatios(self):
         a = [self.a0(), self.a2(), self.k2()]
         
-        print('updating ratios')
-        print a
-        print self.I0
+       #print('updating ratios')
+       #print a
+       #print self.I0
         return a
     
     
@@ -207,29 +234,18 @@ class SequenceCalcs(object):
         
         self.R_fault = para["Rf"]
         self.R_NER = para["R_NER"]
-        self.cap_line = para["CapFaultCct"]
-        self.cap_line_adj = para["CapAdjacent"]
+        self.cap_line = c_to_ohms(para["CapFaultCct"])
+        self.cap_line_adj = c_to_ohms(para["CapAdjacent"])
         
-        a = para["load_flt"]
-        b = para["load_adj"]
+        #Todo
+        '''need to resolve that these do not return zero to the calculation below'''
         
-        c = self.pv/math.sqrt(3)
+        #self.z1_load = mva_to_ohms(para["load_flt"])
+        #self.z2_load = mva_to_ohms(para["load_flt"])
         
-        imp_flt = (a*100000)/(math.pow(c,2))
-        imp_adj = (b*100000)/(math.pow(c,2))
-        
-        print(imp_flt)
-        
-        phi = math.radians(85)
-        
-        self.z1_load = cmath.rect(imp_flt,  phi)+0.001
-        self.z2_load = cmath.rect(imp_flt,  phi)+0.001
-        
-        self.z1_load_adj = cmath.rect(imp_flt, phi)+0.001
-        self.z2_load_adj = cmath.rect(imp_flt, phi)+0.001
-        
-        
-        
+        #self.z1_load_adj = mva_to_ohms(para["load_adj"])
+        #self.z2_load_adj = mva_to_ohms(para["load_adj"])
+
         self.calcBranches(self.calcIf())
 
     def calcIf(self):
@@ -240,9 +256,13 @@ class SequenceCalcs(object):
         self.z2 = parallel((self.z2_src+self.tx2),self.z2_load)
         self.z0 = parallel((self.tx0+3*self.R_NER), self.cap_line_adj)
         
+        print(self.tx0,self.R_NER,self.cap_line_adj)
+        
+        
+        
         If = (self.pv/math.sqrt(3))/(self.z1+self.z2+self.z0+self.R_fault)
         
-        #print(If)
+        #print('If =', str(If))
         
         return If
     
@@ -254,9 +274,17 @@ class SequenceCalcs(object):
         self.relay_flt.V2 = self.z2 * If
         self.relay_flt.V0 = self.z0 * If
         
+       #print('If =', str(If))
+        
+       #print (self.z1, self.z2, self.z0)
+        
+        
+        
         self.relay_flt.I1 = self.relay_flt.V1/(self.z1_src+self.tx1)
         self.relay_flt.I2 = self.relay_flt.V2/(self.z2_src+self.tx2)
         self.relay_flt.I0 = self.relay_flt.V0/(self.tx1+3*self.R_NER)
+        
+        
         
         self.relay_adj.V1 = self.z1 * If
         self.relay_adj.V2 = self.z2 * If
@@ -269,7 +297,7 @@ class SequenceCalcs(object):
     
 if __name__=='__main__':
     
-    print ('app created')
+   #print ('app created')
     
     app= SequenceCalcs()
     
@@ -281,7 +309,7 @@ if __name__=='__main__':
     
     
     
-    print ('debug break point')
+   #print ('debug break point')
     
     
 
