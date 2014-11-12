@@ -11,8 +11,15 @@ import cmath
 def parallel(x,y):
     
     if abs(x)==0 or abs(y)==0:
+        #print('x =0')
         z = 0
+    elif (1/x+1/y)==0:
+        #print ('Bigger number')
+        #print(x,y)
+        z= 1000000
     else:
+        #print( 'results')
+        #print x , y
         z = 1/(1/x+1/y)
     return z
 
@@ -21,10 +28,16 @@ def parallelm(x):
     for i in x:
         if abs(i)==0:
             z =0
+            sum =1
             break
         j = 1.0/i
         sum += j
+        
+    if sum ==0:
+        z = 1000000
+    elif sum !=0:
         z= 1.0/(sum)
+        
     return z
         
 
@@ -51,14 +64,16 @@ def c_to_ohms(pf):
     
 def mva_to_ohms(mva,volts):
     
-    print ('mva', mva)
+    #print ('mva', mva)
     
     if mva ==0:
-        return 10000000000
+        return 10000
     
     else:
         imp = math.pow(volts,2)/(mva*1000000*3.0)
         phi = math.radians(85)
+        
+        print(cmath.rect(imp, phi))
         return cmath.rect(imp, phi)        
         
         
@@ -153,6 +168,8 @@ class SequenceCalcs(object):
         
         self.relay_flt = Relay()
         self.relay_adj = Relay()
+        
+        self.testCase()
         
         
         
@@ -252,13 +269,13 @@ class SequenceCalcs(object):
 
     def calcIf(self):
         
-        #print('calcIf called')
+        print('calcIf called')
         
         self.z1 = parallel((self.z1_src+self.tx1),self.z1_load)
         self.z2 = parallel((self.z2_src+self.tx2),self.z2_load)
         self.z0 = parallel((self.tx0+3*self.R_NER), self.cap_line_adj)
         
-        print(self.tx0,self.R_NER,self.cap_line_adj)
+        #print(self.tx0,self.R_NER,self.cap_line_adj)
         
         
         
