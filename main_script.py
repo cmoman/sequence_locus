@@ -214,8 +214,8 @@ class MainWidget(QtGui.QWidget):
         
         
 
-        self.load_flt= InputDial('Load faulte', 'Current seen by relay adjacent to faulted circuit', 1, 10, True)
-        self.load_adj= InputDial('Load adjacent', 'Current seen by relay adjacent to faulted circuit', 1, 10, True)
+        self.load_flt= InputDial('Load faulte', 'Current seen by relay adjacent to faulted circuit', 1, 10, False)
+        self.load_adj= InputDial('Load adjacent', 'Current seen by relay adjacent to faulted circuit', 1, 10, False)
 
         
         layoutdials.addWidget(self.Rf)
