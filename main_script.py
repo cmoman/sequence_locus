@@ -125,10 +125,13 @@ class InputDial(QtGui.QWidget):
         self.layout.addWidget(self.label)
         self.layout.addWidget(self.dial)
         self.layout.addWidget(self.spinBox)
-        self.connect(self.dial, QtCore.SIGNAL('valueChanged(int)'), self.setValue)
+
         
-        self.connect(self.spinBox, QtCore.SIGNAL('editingFinished()'), self.valueChange)
+        self.connect(self.dial, QtCore.SIGNAL('dialMoved(int)'), self.setValue)
+        
         self.connect(self.dial, QtCore.SIGNAL('sliderReleased()'), self.valueChange)
+        self.connect(self.spinBox, QtCore.SIGNAL('editingFinished()'), self.valueChange)
+    
         
         if radioB == True:
             self.radioButton = QtGui.QRadioButton('select to fix')
@@ -150,6 +153,10 @@ class InputDial(QtGui.QWidget):
         
     def valueChange(self):
         
+        self.setValue()
+        
+        
+        
         #print('emit signal')
 
         self.valueChanged.emit()
@@ -169,11 +176,6 @@ class MainWidget(QtGui.QWidget):
         
         self.calc = SequenceCalcs()
         
-        self.calc.testCase()
-        
-        
-
-
         self.widget1 = MplWidget(10)
         self.widget2 = MplWidget(10)
         
@@ -202,15 +204,19 @@ class MainWidget(QtGui.QWidget):
     
         self.R_NER = InputDial('NER', 'Neutral Earthing Resistor in ohms', 1, 50)
         #self.R_NER.setMaximumSize(150,150)
+
         self.CapFaultCct = InputDial('Cap Faulted Cct', 'circuit capacitance in microfarads', 1, 500)
         self.CapAdjacent = InputDial('Cap adjacent', 'Sum of adjacent circuits capacitance in microfarads', 1, 500)
         self.relay_flt = InputDial('3I0 current Relay in Fault Cct', 'Current seen by relay of faulted circuit', 1, 10000, True)
+
         
         self.relay_adj= InputDial('3I0 current Relay Adjacent', 'Current seen by relay adjacent to faulted circuit', 1, 10000, True)
         
         
+
         self.load_flt= InputDial('Load faulte', 'Current seen by relay adjacent to faulted circuit', 1, 10, True)
         self.load_adj= InputDial('Load adjacent', 'Current seen by relay adjacent to faulted circuit', 1, 10, True)
+
         
         layoutdials.addWidget(self.Rf)
         layoutdials.addWidget(self.R_NER)
