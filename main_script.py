@@ -25,8 +25,6 @@ class MainWindow(QtGui.QMainWindow):
     def __init__(self, parent=None):
         super(MainWindow,self).__init__(parent)
         
-        
-        
         widget = MainWidget()
         self.setCentralWidget(widget)
         self.setWindowTitle('Calculations')
@@ -125,7 +123,7 @@ class InputDial(QtGui.QWidget):
         self.layout.addWidget(self.label)
         self.layout.addWidget(self.dial)
         self.layout.addWidget(self.spinBox)
-
+        
         
         self.connect(self.dial, QtCore.SIGNAL('dialMoved(int)'), self.setValue)
         
@@ -176,14 +174,13 @@ class MainWidget(QtGui.QWidget):
         
         self.calc = SequenceCalcs()
         
+        #self.calc.testCase()
+
+
         self.widget1 = MplWidget(10)
         self.widget2 = MplWidget(10)
         
         self.widget2.hide()
-        
-        self.tabWidget = QtGui.QTabWidget()
-        layoutwid = QtGui.QHBoxLayout()
-        self.tabWidget.setLayout(layoutwid)
         
         self.layout = QtGui.QVBoxLayout()
         self.layout.addWidget(self.widget1)
@@ -200,23 +197,19 @@ class MainWidget(QtGui.QWidget):
         
         layoutdials = QtGui.QHBoxLayout()
         
-        self.Rf = InputDial('Fault Resistance', 'Ohms', 1, 400)
+        self.Rf = InputDial('Fault Resistance', 'Ohms', 0, 400)
     
-        self.R_NER = InputDial('NER', 'Neutral Earthing Resistor in ohms', 1, 50)
+        self.R_NER = InputDial('NER', 'Neutral Earthing Resistor in ohms', 0, 50)
         #self.R_NER.setMaximumSize(150,150)
-
-        self.CapFaultCct = InputDial('Cap Faulted Cct', 'circuit capacitance in microfarads', 1, 500)
-        self.CapAdjacent = InputDial('Cap adjacent', 'Sum of adjacent circuits capacitance in microfarads', 1, 500)
-        self.relay_flt = InputDial('3I0 current Relay in Fault Cct', 'Current seen by relay of faulted circuit', 1, 10000, True)
-
+        self.CapFaultCct = InputDial('Cap Faulted Cct', 'circuit capacitance in picofarads', 0, 500)
+        self.CapAdjacent = InputDial('Cap adjacent', 'Sum of adjacent circuits capacitance in microfarads', 0, 500)
+        self.relay_flt = InputDial('3I0 current Relay in Fault Cct', 'Current seen by relay of faulted circuit', 0, 10000, True)
         
         self.relay_adj= InputDial('3I0 current Relay Adjacent', 'Current seen by relay adjacent to faulted circuit', 1, 10000, True)
         
         
-
-        self.load_flt= InputDial('Load faulte', 'Current seen by relay adjacent to faulted circuit', 1, 10, False)
-        self.load_adj= InputDial('Load adjacent', 'Current seen by relay adjacent to faulted circuit', 1, 10, False)
-
+        self.load_flt= InputDial('Load faulte', 'Current seen by relay adjacent to faulted circuit', 0, 10, False)
+        self.load_adj= InputDial('Load adjacent', 'Current seen by relay adjacent to faulted circuit', 0, 10, False)
         
         layoutdials.addWidget(self.Rf)
         layoutdials.addWidget(self.R_NER)
@@ -225,14 +218,12 @@ class MainWidget(QtGui.QWidget):
         layoutdials.addWidget(self.relay_flt)
         layoutdials.addWidget(self.relay_adj)
         layoutdials.addWidget(self.load_flt)
-        layoutdials.addWidget(self.load_adj)
-        
-        
+        layoutdials.addWidget(self.load_adj)        
         
         
         
         self.layout.addLayout(layoutdials)
-        
+
         self.setLayout(self.layout)
         
         self.updateGraphs()
