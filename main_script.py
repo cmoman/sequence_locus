@@ -115,7 +115,7 @@ class InputDial(QtGui.QWidget):
         self.dial.setMinimum(min)
         self.dial.setMaximum(max)
         
-        self.spinBox = QtGui.QSpinBox()
+        self.spinBox = QtGui.QDoubleSpinBox()
         self.spinBox.setMinimum(min)
         self.spinBox.setMaximum(max)
         self.spinBox.setValue(1)
@@ -123,9 +123,13 @@ class InputDial(QtGui.QWidget):
         self.layout.addWidget(self.label)
         self.layout.addWidget(self.dial)
         self.layout.addWidget(self.spinBox)
-        self.connect(self.dial, QtCore.SIGNAL('valueChanged(int)'), self.spinBox, QtCore.SLOT('setValue(int)'))
         
-        self.connect(self.spinBox, QtCore.SIGNAL('valueChanged(int)'), self.valueChange)
+        
+        self.connect(self.dial, QtCore.SIGNAL('dialMoved(int)'), self.setValue)
+        
+        self.connect(self.dial, QtCore.SIGNAL('sliderReleased()'), self.valueChange)
+        self.connect(self.spinBox, QtCore.SIGNAL('editingFinished()'), self.valueChange)
+    
         
         if radioB == True:
             self.radioButton = QtGui.QRadioButton('select to fix')
@@ -138,14 +142,18 @@ class InputDial(QtGui.QWidget):
         self.setMaximumSize(150,150) # this 
         
     def value(self):
-        return self.dial.value()
+        return self.spinBox.value()
     
-    def setValue(self, value):
-        self.spinBox.setValue(value)
+    def setValue(self):
+        self.spinBox.setValue(self.dial.value())
         
         
         
     def valueChange(self):
+        
+        self.setValue()
+        
+        
         
         #print('emit signal')
 
@@ -166,7 +174,7 @@ class MainWidget(QtGui.QWidget):
         
         self.calc = SequenceCalcs()
         
-        self.calc.testCase()
+        #self.calc.testCase()
 
 
         self.widget1 = MplWidget(10)
@@ -193,15 +201,15 @@ class MainWidget(QtGui.QWidget):
     
         self.R_NER = InputDial('NER', 'Neutral Earthing Resistor in ohms', 0, 50)
         #self.R_NER.setMaximumSize(150,150)
-        self.CapFaultCct = InputDial('Cap Faulted Cct', 'circuit capacitance in microfarads', 0, 500)
+        self.CapFaultCct = InputDial('Cap Faulted Cct', 'circuit capacitance in picofarads', 0, 500)
         self.CapAdjacent = InputDial('Cap adjacent', 'Sum of adjacent circuits capacitance in microfarads', 0, 500)
         self.relay_flt = InputDial('3I0 current Relay in Fault Cct', 'Current seen by relay of faulted circuit', 0, 10000, True)
         
         self.relay_adj= InputDial('3I0 current Relay Adjacent', 'Current seen by relay adjacent to faulted circuit', 1, 10000, True)
         
         
-        self.load_flt= InputDial('Load faulte', 'Current seen by relay adjacent to faulted circuit', 0, 10, True)
-        self.load_adj= InputDial('Load adjacent', 'Current seen by relay adjacent to faulted circuit', 0, 10, True)
+        self.load_flt= InputDial('Load faulte', 'Current seen by relay adjacent to faulted circuit', 0, 10, False)
+        self.load_adj= InputDial('Load adjacent', 'Current seen by relay adjacent to faulted circuit', 0, 10, False)
         
         layoutdials.addWidget(self.Rf)
         layoutdials.addWidget(self.R_NER)
