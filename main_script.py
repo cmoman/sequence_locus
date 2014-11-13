@@ -175,16 +175,25 @@ class MainWidget(QtGui.QWidget):
         self.calc = SequenceCalcs()
         
         #self.calc.testCase()
-
+        
+        self.tabWidget = QtGui.QTabWidget()
+        self.tab1 = QtGui.QWidget()
+        
+        self.tabWidget.addTab(self.tab1,"Main")
 
         self.widget1 = MplWidget(10)
-        self.widget2 = MplWidget(10)
+        #self.widget2 = MplWidget(10)
         
-        self.widget2.hide()
+        layout = QtGui.QVBoxLayout()
+        layout.addWidget(self.widget1)
+        
+        self.tab1.setLayout(layout)
+        
+        #self.widget2.hide()
         
         self.layout = QtGui.QVBoxLayout()
-        self.layout.addWidget(self.widget1)
-        self.layout.addWidget(self.widget2)
+        self.layout.addWidget(self.tabWidget)
+        #self.layout.addWidget(self.widget2)
         
         self.textbox=QtGui.QTextEdit()
         #self.layout.addWidget(self.textbox)
