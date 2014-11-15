@@ -124,9 +124,10 @@ class InputDial(QtGui.QWidget):
         self.layout.addWidget(self.dial)
         self.layout.addWidget(self.spinBox)
         
+        self.dial.setTracking(False)
+        self.connect(self.dial, QtCore.SIGNAL('valueChanged(int)'), self.setValue2)
         
-        self.connect(self.dial, QtCore.SIGNAL('dialMoved(int)'), self.setValue)
-        
+        #These signals initiate the re graph.
         self.connect(self.dial, QtCore.SIGNAL('sliderReleased()'), self.valueChange)
         self.connect(self.spinBox, QtCore.SIGNAL('editingFinished()'), self.valueChange)
     
@@ -144,28 +145,23 @@ class InputDial(QtGui.QWidget):
     def value(self):
         return self.spinBox.value()
     
-    def setValue(self):
+    def setValue2(self,double):
+        ''' double spin box value is a double
+        while dial value is an integer'''
+        print('setValue2 method called')
         self.spinBox.setValue(self.dial.value())
         
+        #timer = QtCore.QTimer()
         
+        '''do we start a timer in here before calling the valueChanged() method'''
+        
+        
+        self.valueChange()
         
     def valueChange(self):
-        
-        self.setValue()
-        
-        
-        
-        #print('emit signal')
-
         self.valueChanged.emit()
 
-    
 
-        
-
-        
-        
-        
 class MainWidget(QtGui.QWidget):
     def __init__(self):
         super(MainWidget, self).__init__()
@@ -182,12 +178,22 @@ class MainWidget(QtGui.QWidget):
         self.tabWidget.addTab(self.tab1,"Main")
 
         self.widget1 = MplWidget(10)
-        #self.widget2 = MplWidget(10)
         
-        layout = QtGui.QVBoxLayout()
-        layout.addWidget(self.widget1)
         
-        self.tab1.setLayout(layout)
+        layout_tab1 = QtGui.QVBoxLayout()
+        layout_tab1.addWidget(self.widget1)
+        
+        self.tab1.setLayout(layout_tab1)
+        
+        self.tab2 = QtGui.QWidget()
+        self.widget2 = MplWidget(1)
+        
+        layout_tab2 = QtGui.QVBoxLayout()
+        layout_tab2.addWidget(self.widget2)
+        
+        self.tab2.setLayout(layout_tab2)
+        
+        self.tabWidget.addTab(self.tab2,"Second")
         
         #self.widget2.hide()
         
@@ -206,15 +212,15 @@ class MainWidget(QtGui.QWidget):
         
         layoutdials = QtGui.QHBoxLayout()
         
-        self.Rf = InputDial('Fault Resistance', 'Ohms', 0, 400)
+        self.Rf = InputDial('Fault Resistance', 'Ohms', 0, 400, False)
     
-        self.R_NER = InputDial('NER', 'Neutral Earthing Resistor in ohms', 0, 50)
+        self.R_NER = InputDial('NER', 'Neutral Earthing Resistor in ohms', 0, 50, False)
         #self.R_NER.setMaximumSize(150,150)
-        self.CapFaultCct = InputDial('Cap Faulted Cct', 'circuit capacitance in picofarads', 0, 500)
-        self.CapAdjacent = InputDial('Cap adjacent', 'Sum of adjacent circuits capacitance in microfarads', 0, 500)
-        self.relay_flt = InputDial('3I0 current Relay in Fault Cct', 'Current seen by relay of faulted circuit', 0, 10000, True)
+        self.CapFaultCct = InputDial('Cap Faulted Cct', 'circuit capacitance in picofarads', 0, 500, False)
+        self.CapAdjacent = InputDial('Cap adjacent', 'Sum of adjacent circuits capacitance in microfarads', 0, 500, False)
+        self.relay_flt = InputDial('3I0 current Relay in Fault Cct', 'Current seen by relay of faulted circuit', 0, 10000,  False)
         
-        self.relay_adj= InputDial('3I0 current Relay Adjacent', 'Current seen by relay adjacent to faulted circuit', 1, 10000, True)
+        self.relay_adj= InputDial('3I0 current Relay Adjacent', 'Current seen by relay adjacent to faulted circuit', 1, 10000, False)
         
         
         self.load_flt= InputDial('Load faulte', 'Current seen by relay adjacent to faulted circuit', 0, 10, False)
@@ -284,7 +290,9 @@ class MainWidget(QtGui.QWidget):
         self.widget1.canvas.z0_adj.clear()
         self.widget1.canvas.V2V0_adj.clear()
         self.widget1.canvas.I2I0_adj.clear()
-        self.widget1.canvas.thresh_adj.clear()        
+        self.widget1.canvas.thresh_adj.clear()  
+        
+        self.widget2.canvas.ax1.clear()
 
         self.widget1.canvas.z2_flt.set_title('Z2 fault cct')
         self.widget1.canvas.z2_flt.plot(self.calc.z2_locus()[0],self.calc.z2_locus()[1],'ro')
@@ -292,6 +300,20 @@ class MainWidget(QtGui.QWidget):
         self.widget1.canvas.z2_flt.plot(self.calc.z2_thresholds()[2], self.calc.z2_thresholds()[3])
         
         adjust_spines(self.widget1.canvas.z2_flt)
+        
+        #z0124 = self.widget2.canvas.ax1.plot([1,5,3,3],[3,4,5,6])
+        
+        z0124 = self.widget2.canvas.ax1
+        #z0124.plot(self.calc.z2_locus()[0], self.calc.z2_locus()[1],'ro')
+        z0124.plot(self.calc.z2_locus()[0],self.calc.z2_locus()[1],'ro')
+        z0124.plot(self.calc.z2_thresholds()[0], self.calc.z2_thresholds()[1])
+        z0124.plot(self.calc.z2_thresholds()[2], self.calc.z2_thresholds()[3])        
+        adjust_spines(z0124)
+        
+        #z0.set_title('bling')
+        #z0.plot([1,2,4,5],[2,4,5,5])
+        
+        print ('debug')
         
         self.widget1.canvas.z0_flt.set_title('Z0 fault cct')
         self.widget1.canvas.z0_flt.plot(self.calc.z0_locus()[0],self.calc.z0_locus()[1],'ro')
@@ -313,9 +335,18 @@ class MainWidget(QtGui.QWidget):
 
         N = 3
         ind = np.arange(N)  # the x locations for the groups
+        ind2=[1,3,5]
+        ind3=[2,4,6]
+        ind4 = np.array(ind3)
+        ind = np.array(ind2)
+        
+        print(type(ind))
         width = 0.35
         
         self.widget1.canvas.thresh_flt.bar(ind,self.calc.qualRatio())
+        self.widget1.canvas.thresh_flt.bar(ind4,(0.1,0.2,0.1),color='yellow')
+        
+        
         self.widget1.canvas.thresh_flt.set_xticks(ind+width)
         self.widget1.canvas.thresh_flt.set_xticklabels(('a2', 'k2', 'a0'))
         self.widget1.canvas.thresh_flt.set_xlabel('qualifying ratio')
@@ -345,11 +376,13 @@ class MainWidget(QtGui.QWidget):
         self.widget1.canvas.I2I0_adj.plot([0,self.calc.plotI0adj()[1]],[0,self.calc.plotI0adj()[0]],linewidth=1, color='green') 
 
         self.widget1.canvas.thresh_adj.bar(ind,self.calc.qualRatio_adj())
+        self.widget1.canvas.thresh_adj.bar(ind4,(0.1,0.2,0.1),color='yellow')
         self.widget1.canvas.thresh_adj.set_xticks(ind+width)
         self.widget1.canvas.thresh_adj.set_xticklabels(('a2', 'k2', 'a0'))
         self.widget1.canvas.thresh_adj.set_xlabel('qualifying ratio')   
 
         self.widget1.canvas.draw()
+        self.widget2.canvas.draw()
 
 
 if __name__=='__main__':
