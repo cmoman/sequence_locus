@@ -106,34 +106,41 @@ class RadioButtionsWidget(QtGui.QWidget):
         self.layout = QtGui.QVBoxLayout()
         
         self.frame= QtGui.QFrame()
-        self.frame.setFrameStyle(2)
+        self.frame.setFrameStyle(QtGui.QFrame.Panel | QtGui.QFrame.Raised)
+        #self.frame.
         
         self.framelayout = QtGui.QVBoxLayout()
         
-        for i in range(number):
+        '''for i in range(number):
             
             q = 'self.radio'+str(i)
             q= QtGui.QRadioButton("bling")
             
-            self.framelayout.addWidget(q)
-
-            
+            self.framelayout.addWidget(q)'''
+        
+        self.radioB_fix_flt = QtGui.QRadioButton("Fix 3I0 in faulted cct")
+        self.radioB_fix_adj = QtGui.QRadioButton("Fix 3I0 in adjacent cct")
+        self.radioB_clear = QtGui.QRadioButton("Clear")
+        self.radioB_fix_flt.setToolTip("The fault resistance is amended until the specified 3I0 is acheived")
+        self.radioB_fix_adj.setToolTip("The fault resistance is amended until the specified 3I0 is acheived")
+        self.radioB_clear.setToolTip("Currents are calculated based on impedance and loading parameters")
+        
+        self.frame.setToolTip("Calculation method")
+        
+        self.framelayout.addWidget(self.radioB_fix_adj)
+        self.framelayout.addWidget(self.radioB_fix_flt)
+        self.framelayout.addWidget(self.radioB_clear)
+  
         self.frame.setLayout(self.framelayout)
-        
         self.layout.addWidget(self.frame)
-        
-        
         self.setLayout(self.layout)
-        
-            
-            
 
         
 class InputDial(QtGui.QWidget):
     
     valueChanged =pyqtSignal()
     
-    def __init__(self, name, tooltip=None, min=0, max=100, radioB = False):
+    def __init__(self, name, tooltip=None, min=0, max=100, radioB = False, units = ""):
         super(InputDial, self).__init__()
         self.setToolTip(tooltip)
         self.objectName=name
@@ -149,6 +156,7 @@ class InputDial(QtGui.QWidget):
         self.spinBox.setMinimum(min)
         self.spinBox.setMaximum(max)
         self.spinBox.setValue(1)
+        self.spinBox.setSuffix(units)
 
         self.layout.addWidget(self.label)
         self.layout.addWidget(self.dial)
@@ -242,19 +250,19 @@ class MainWidget(QtGui.QWidget):
         
         layoutdials = QtGui.QHBoxLayout()
         
-        self.Rf = InputDial('Fault Resistance', 'Ohms', 0, 400, False)
+        self.Rf = InputDial('Fault Resistance', 'Ohms', 0, 400, False,"ohms")
     
-        self.R_NER = InputDial('NER', 'Neutral Earthing Resistor in ohms', 0, 50, False)
+        self.R_NER = InputDial('NER', 'Neutral Earthing Resistor in ohms', 0, 50, False,"ohms")
         #self.R_NER.setMaximumSize(150,150)
-        self.CapFaultCct = InputDial('Cap Faulted Cct', 'circuit capacitance in picofarads', 0, 500, False)
-        self.CapAdjacent = InputDial('Cap adjacent', 'Sum of adjacent circuits capacitance in microfarads', 0, 500, False)
-        self.relay_flt = InputDial('3I0 current Relay in Fault Cct', 'Current seen by relay of faulted circuit', 0, 10000,  False)
+        self.CapFaultCct = InputDial('Cap Faulted Cct', 'circuit capacitance in picofarads', 0, 500, False,"pf")
+        self.CapAdjacent = InputDial('Cap adjacent', 'Sum of adjacent circuits capacitance in microfarads', 0, 500, False,"pf")
+        self.relay_flt = InputDial('3I0 current Relay in Fault Cct', 'Current seen by relay of faulted circuit', 0, 10000,  False,"A")
         
-        self.relay_adj= InputDial('3I0 current Relay Adjacent', 'Current seen by relay adjacent to faulted circuit', 1, 10000, False)
+        self.relay_adj= InputDial('3I0 current Relay Adjacent', 'Current seen by relay adjacent to faulted circuit', 1, 10000, False, "A")
         
         
-        self.load_flt= InputDial('Load faulte', 'Current seen by relay adjacent to faulted circuit', 0, 10, False)
-        self.load_adj= InputDial('Load adjacent', 'Current seen by relay adjacent to faulted circuit', 0, 10, False)
+        self.load_flt= InputDial('Load faulte', 'Current seen by relay adjacent to faulted circuit', 0, 10, False,"MVA")
+        self.load_adj= InputDial('Load adjacent', 'Current seen by relay adjacent to faulted circuit', 0, 10, False,"MVA")
         
         layoutdials.addWidget(self.Rf)
         layoutdials.addWidget(self.R_NER)
@@ -365,7 +373,7 @@ class MainWidget(QtGui.QWidget):
         self.widget1.canvas.V2V0_flt.plot([0,self.calc.plotV2()[1]],[0,self.calc.plotV2()[0]],linewidth=1, color='purple')
         self.widget1.canvas.V2V0_flt.plot([0,self.calc.plotV0()[1]],[0,self.calc.plotV0()[0]],linewidth=1, color='green')
         
-        self.widget1.canvas.I2I0_flt.set_title('I2 I2 fault cct')
+        self.widget1.canvas.I2I0_flt.set_title('I2 I0 fault cct')
         self.widget1.canvas.I2I0_flt.plot([0,self.calc.plotI2()[1]],[0,self.calc.plotI2()[0]],linewidth=1, color='purple')
         self.widget1.canvas.I2I0_flt.plot([0,self.calc.plotI0()[1]],[0,self.calc.plotI0()[0]],linewidth=1, color='green')         
         
@@ -385,6 +393,12 @@ class MainWidget(QtGui.QWidget):
         
         self.widget1.canvas.thresh_flt.bar(ind,self.calc.qualRatio())
         self.widget1.canvas.thresh_flt.bar(ind4,(0.1,0.2,0.1),color='yellow')
+        
+        self.widget1.canvas.thresh_flt.set_ylim(0,1.2)
+        
+        print ('let debug the canvas')
+        
+        #self.widget1.canvas.thresh_flt.bar.set_maximum(1.2)
         
         
         self.widget1.canvas.thresh_flt.set_xticks(ind+width)
@@ -411,7 +425,7 @@ class MainWidget(QtGui.QWidget):
         self.widget1.canvas.V2V0_adj.plot([0,self.calc.plotV2adj()[1]],[0,self.calc.plotV2adj()[0]],linewidth=1, color='purple')
         self.widget1.canvas.V2V0_adj.plot([0,self.calc.plotV0adj()[1]],[0,self.calc.plotV0adj()[0]],linewidth=1, color='green')
         
-        self.widget1.canvas.I2I0_adj.set_title('I2 I2 adj cct')
+        self.widget1.canvas.I2I0_adj.set_title('I2 I0 adj cct')
         self.widget1.canvas.I2I0_adj.plot([0,self.calc.plotI2adj()[1]],[0,self.calc.plotI2adj()[0]],linewidth=1, color='purple')
         self.widget1.canvas.I2I0_adj.plot([0,self.calc.plotI0adj()[1]],[0,self.calc.plotI0adj()[0]],linewidth=1, color='green') 
 
@@ -419,7 +433,8 @@ class MainWidget(QtGui.QWidget):
         self.widget1.canvas.thresh_adj.bar(ind4,(0.1,0.2,0.1),color='yellow')
         self.widget1.canvas.thresh_adj.set_xticks(ind+width)
         self.widget1.canvas.thresh_adj.set_xticklabels(('a2', 'k2', 'a0'))
-        self.widget1.canvas.thresh_adj.set_xlabel('qualifying ratio')   
+        self.widget1.canvas.thresh_adj.set_xlabel('qualifying ratio')
+        self.widget1.canvas.thresh_adj.set_ylim(0,1.2)
 
         self.widget1.canvas.draw()
         self.widget2.canvas.draw()
