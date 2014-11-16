@@ -97,6 +97,36 @@ class ControlDial(QtGui.QDial):
     def __init__(self, parent, size):
         super(ControlDial, self).__init__()
         self.setMaximumSize(size)
+        
+class RadioButtionsWidget(QtGui.QWidget):
+    '''making '''
+    def  __init__(self, number):
+        super(RadioButtionsWidget, self).__init__()
+        
+        self.layout = QtGui.QVBoxLayout()
+        
+        self.frame= QtGui.QFrame()
+        self.frame.setFrameStyle(2)
+        
+        self.framelayout = QtGui.QVBoxLayout()
+        
+        for i in range(number):
+            
+            q = 'self.radio'+str(i)
+            q= QtGui.QRadioButton("bling")
+            
+            self.framelayout.addWidget(q)
+
+            
+        self.frame.setLayout(self.framelayout)
+        
+        self.layout.addWidget(self.frame)
+        
+        
+        self.setLayout(self.layout)
+        
+            
+            
 
         
 class InputDial(QtGui.QWidget):
@@ -236,8 +266,18 @@ class MainWidget(QtGui.QWidget):
         layoutdials.addWidget(self.load_adj)        
         
         
+        bling = RadioButtionsWidget(3)
+        
+        
+        layoutdials.addWidget(bling)
+        
+        
         
         self.layout.addLayout(layoutdials)
+        
+        
+        
+        
 
         self.setLayout(self.layout)
         
