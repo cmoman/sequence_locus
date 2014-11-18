@@ -25,11 +25,17 @@ class MainWindow(QtGui.QMainWindow):
     def __init__(self, parent=None):
         super(MainWindow,self).__init__(parent)
         
-        widget = MainWidget()
+        bar = self.statusBar()
+        widget = MainWidget(bar)
         self.setCentralWidget(widget)
         self.setWindowTitle('Calculations')
         
-        bar = self.statusBar()
+        
+        '''How can we get th'''
+
+        
+        
+        
         
 class MplCanvas(FigureCanvas):
     def __init__(self,nplots):
@@ -132,7 +138,22 @@ class RadioButtionsWidget(QtGui.QWidget):
         self.framelayout.addWidget(self.radioB_clear)
   
         self.frame.setLayout(self.framelayout)
+        
+        self.frame2 = QtGui.QFrame()
+        self.frame2.setFrameStyle(QtGui.QFrame.Panel | QtGui.QFrame.Raised)
+        
+        self.frame2layout = QtGui.QVBoxLayout()
+        
+        self.radioB_bling = QtGui.QRadioButton("Automatici Calculation On/Off")
+        self.frame2layout.addWidget(self.radioB_bling)
+        self.frame2.setLayout(self.frame2layout)
+        
+        
+        
+        
+        
         self.layout.addWidget(self.frame)
+        self.layout.addWidget(self.frame2)
         self.setLayout(self.layout)
 
         
@@ -198,11 +219,15 @@ class InputDial(QtGui.QWidget):
         
     def valueChange(self):
         self.valueChanged.emit()
+        
+
 
 
 class MainWidget(QtGui.QWidget):
-    def __init__(self):
-        super(MainWidget, self).__init__()
+    def __init__(self,bar):
+        super(MainWidget, self).__init__(bar)
+        
+        self.bar = bar
         
         #instantiate calculation class
         
@@ -232,6 +257,19 @@ class MainWidget(QtGui.QWidget):
         self.tab2.setLayout(layout_tab2)
         
         self.tabWidget.addTab(self.tab2,"Second")
+        
+        self.tab3 = QtGui.QWidget()
+        
+        self.relayTable = QtGui.QTableWidget()
+        
+        
+        layout_tab3 = QtGui.QVBoxLayout()
+        layout_tab3.addWidget(self.relayTable)
+        
+        self.tab3.setLayout(layout_tab3)
+        
+        self.tabWidget.addTab(self.tab3, "Third")
+        
         
         #self.widget2.hide()
         
@@ -274,10 +312,10 @@ class MainWidget(QtGui.QWidget):
         layoutdials.addWidget(self.load_adj)        
         
         
-        bling = RadioButtionsWidget(3)
+        self.bling = RadioButtionsWidget(3)
         
         
-        layoutdials.addWidget(bling)
+        layoutdials.addWidget(self.bling)
         
         
         
@@ -291,18 +329,19 @@ class MainWidget(QtGui.QWidget):
         
         self.updateGraphs()
 
-        self.pushButton2.clicked.connect(self.doCalculation)
+        self.pushButton2.clicked.connect(self.doCalculationM)
         
         # It is possible to create a static method or class methods that emits a signal
         # Decorator perhaps.
         
+      
         self.connect(self.R_NER, QtCore.SIGNAL('valueChanged()'), self.doCalculation)
         self.connect(self.Rf, QtCore.SIGNAL('valueChanged()'), self.doCalculation)
         self.connect(self.CapFaultCct, QtCore.SIGNAL('valueChanged()'), self.doCalculation)
         self.connect(self.CapAdjacent, QtCore.SIGNAL('valueChanged()'), self.doCalculation)
         self.connect(self.load_flt, QtCore.SIGNAL('valueChanged()'), self.doCalculation)
         self.connect(self.load_adj, QtCore.SIGNAL('valueChanged()'), self.doCalculation)        
-        
+    
         
 
         
@@ -313,20 +352,46 @@ class MainWidget(QtGui.QWidget):
         #print('break point')
 
         self.doCalculation()
+        
+        
+    def doCalculationM(self):
+        
+        self.bar.showMessage('Calculating and updating graphs')
+        
+        self.d = {}
+        for k in ("R_NER", "Rf", "CapFaultCct", "CapAdjacent", "relay_flt", "relay_adj" ,"load_flt", "load_adj"):
+            self.d[k] = getattr(self,k).value()       
+            
+
+        self.calc.updateCalc(self.d)
+        
+        self.updateGraphs()  
+        
+        self.bar.clearMessage()
+        
+        
 
         
     def doCalculation(self):
+        
+        
         
         self.d = {}
         for k in ("R_NER", "Rf", "CapFaultCct", "CapAdjacent", "relay_flt", "relay_adj" ,"load_flt", "load_adj"):
             self.d[k] = getattr(self,k).value()       
             
         #self.calc.updateCalc(self.d)
-        self.calc.updateCalc(self.d)
-        
-        self.updateGraphs()
+        if self.bling.radioB_bling.isChecked() == True:
+            self.bar.showMessage('Calculating and updating graphs')
+            self.calc.updateCalc(self.d)
+            
+            self.updateGraphs()
+            
+            self.bar.clearMessage()
                           
     def updateGraphs(self):
+        
+        #Can we show a message on the status bar self.bar.showMessage('Calculating')
         
         self.widget1.canvas.z2_flt.clear()
         self.widget1.canvas.z0_flt.clear()
