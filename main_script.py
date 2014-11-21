@@ -423,7 +423,7 @@ class MainWidget(QtGui.QWidget):
         
         #print self.calc.plotI2()[0]
         
-        
+        #expermi
 
         N = 3
         ind = np.arange(N)  # the x locations for the groups
