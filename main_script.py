@@ -106,7 +106,7 @@ class ControlDial(QtGui.QDial):
         
 class RadioButtionsWidget(QtGui.QWidget):
     '''making '''
-    def  __init__(self, number):
+    def  __init__(self, number,a,b):
         super(RadioButtionsWidget, self).__init__()
         
         self.layout = QtGui.QVBoxLayout()
@@ -144,8 +144,10 @@ class RadioButtionsWidget(QtGui.QWidget):
         
         self.frame2layout = QtGui.QVBoxLayout()
         
-        self.radioB_bling = QtGui.QRadioButton("Automatici Calculation On/Off")
+        self.radioB_bling = QtGui.QRadioButton("Automatic Calculation On/Off")
         self.frame2layout.addWidget(self.radioB_bling)
+        self.frame2layout.addWidget(a)
+        self.frame2layout.addWidget(b)
         self.frame2.setLayout(self.frame2layout)
         
         
@@ -281,10 +283,10 @@ class MainWidget(QtGui.QWidget):
         #self.layout.addWidget(self.textbox)
         
         self.pushButton = QtGui.QPushButton("push to clear")
-        self.layout.addWidget(self.pushButton)
+        #self.layout.addWidget(self.pushButton)
         
         self.pushButton2 = QtGui.QPushButton('push to calculate')
-        self.layout.addWidget(self.pushButton2)
+        #self.layout.addWidget(self.pushButton2)
         
         layoutdials = QtGui.QHBoxLayout()
         
@@ -311,48 +313,33 @@ class MainWidget(QtGui.QWidget):
         layoutdials.addWidget(self.load_flt)
         layoutdials.addWidget(self.load_adj)        
         
-        
-        self.bling = RadioButtionsWidget(3)
-        
+
+        self.bling = RadioButtionsWidget(3,self.pushButton,self.pushButton2)
         
         layoutdials.addWidget(self.bling)
-        
-        
-        
-        self.layout.addLayout(layoutdials)
-        
-        
-        
-        
+        #layoutdials.addWidget(self.pushButton)
+        #layoutdials.addWidget(self.pushButton2)
 
+        self.layout.addLayout(layoutdials)
         self.setLayout(self.layout)
-        
         self.updateGraphs()
 
         self.pushButton2.clicked.connect(self.doCalculationM)
         
         # It is possible to create a static method or class methods that emits a signal
         # Decorator perhaps.
-        
       
         self.connect(self.R_NER, QtCore.SIGNAL('valueChanged()'), self.doCalculation)
         self.connect(self.Rf, QtCore.SIGNAL('valueChanged()'), self.doCalculation)
         self.connect(self.CapFaultCct, QtCore.SIGNAL('valueChanged()'), self.doCalculation)
         self.connect(self.CapAdjacent, QtCore.SIGNAL('valueChanged()'), self.doCalculation)
         self.connect(self.load_flt, QtCore.SIGNAL('valueChanged()'), self.doCalculation)
-        self.connect(self.load_adj, QtCore.SIGNAL('valueChanged()'), self.doCalculation)        
-    
-        
-
-        
+        self.connect(self.load_adj, QtCore.SIGNAL('valueChanged()'), self.doCalculation) 
 
     def updateNER(self):
         #self.calc.R_NER= self.R_NER.value()
-        
         #print('break point')
-
         self.doCalculation()
-        
         
     def doCalculationM(self):
         
@@ -362,19 +349,11 @@ class MainWidget(QtGui.QWidget):
         for k in ("R_NER", "Rf", "CapFaultCct", "CapAdjacent", "relay_flt", "relay_adj" ,"load_flt", "load_adj"):
             self.d[k] = getattr(self,k).value()       
             
-
         self.calc.updateCalc(self.d)
-        
-        self.updateGraphs()  
-        
+        self.updateGraphs() 
         self.bar.clearMessage()
         
-        
-
-        
     def doCalculation(self):
-        
-        
         
         self.d = {}
         for k in ("R_NER", "Rf", "CapFaultCct", "CapAdjacent", "relay_flt", "relay_adj" ,"load_flt", "load_adj"):
