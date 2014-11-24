@@ -263,6 +263,10 @@ class MainWidget(QtGui.QWidget):
         self.tab3 = QtGui.QWidget()
         
         self.relayTable = QtGui.QTableWidget()
+        self.relayTable.setRowCount(5)
+        self.relayTable.setColumnCount(5)
+        self.item = QtGui.QTableWidgetItem("wer")
+        self.relayTable.setItem(1,2,self.item)
         
         
         layout_tab3 = QtGui.QVBoxLayout()
