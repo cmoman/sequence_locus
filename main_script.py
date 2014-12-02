@@ -11,6 +11,11 @@ import cmath
 
 from PyQt4 import QtCore, QtGui, QtSvg
 
+import pyqtgraph as pg
+
+pg.setConfigOption('background', 'w')
+pg.setConfigOption('foreground', 'k')
+
 from PyQt4.QtCore import pyqtSignal, pyqtSlot
 
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
@@ -18,8 +23,6 @@ from matplotlib.backends.backend_qt4agg import NavigationToolbar2QTAgg as Naviga
 from matplotlib.figure import Figure
 
 from sequence_calc import SequenceCalcs
-
-
 
 class MainWindow(QtGui.QMainWindow):
     def __init__(self, parent=None):
@@ -29,14 +32,7 @@ class MainWindow(QtGui.QMainWindow):
         widget = MainWidget(bar)
         self.setCentralWidget(widget)
         self.setWindowTitle('Calculations')
-        
-        
-        '''How can we get th'''
 
-        
-        
-        
-        
 class MplCanvas(FigureCanvas):
     def __init__(self,nplots):
         self.fig = Figure()
@@ -83,8 +79,9 @@ def adjust_spines(ax):
     ax.xaxis.set_ticks_position('bottom')
     ax.yaxis.set_ticks_position('left')
     ax.grid(True)
-            
-            
+
+
+
 class MplWidget(QtGui.QWidget):
     def __init__(self,nplots):
         super(MplWidget, self).__init__()
@@ -149,10 +146,6 @@ class RadioButtionsWidget(QtGui.QWidget):
         self.frame2layout.addWidget(a)
         self.frame2layout.addWidget(b)
         self.frame2.setLayout(self.frame2layout)
-        
-        
-        
-        
         
         self.layout.addWidget(self.frame)
         self.layout.addWidget(self.frame2)
@@ -268,9 +261,18 @@ class MainWidget(QtGui.QWidget):
         self.item = QtGui.QTableWidgetItem("wer")
         self.relayTable.setItem(1,2,self.item)
         
+        self.win = pg.GraphicsWindow(title="Basic plotting examples")
+        self.win.resize(1000,600)
+        self.win.setWindowTitle('pyqtgraph example: Plotting')
+        
+        # Enable antialiasing for prettier plots
+        pg.setConfigOptions(antialias=True)
+        
+        #p1 = win.addPlot(title="Basic array plotting", y=np.random.normal(size=100))        
         
         layout_tab3 = QtGui.QVBoxLayout()
         layout_tab3.addWidget(self.relayTable)
+        layout_tab3.addWidget(self.win)
         
         self.tab3.setLayout(layout_tab3)
         
@@ -391,9 +393,14 @@ class MainWidget(QtGui.QWidget):
         self.widget2.canvas.ax1.clear()
 
         self.widget1.canvas.z2_flt.set_title('Z2 fault cct')
-        self.widget1.canvas.z2_flt.plot(self.calc.z2_locus()[0],self.calc.z2_locus()[1],'ro')
+        self.widget1.canvas.z2_flt.plot(self.calc.z2_locus()[0],self.calc.z2_locus()[1])
         self.widget1.canvas.z2_flt.plot(self.calc.z2_thresholds()[0], self.calc.z2_thresholds()[1])
         self.widget1.canvas.z2_flt.plot(self.calc.z2_thresholds()[2], self.calc.z2_thresholds()[3])
+        
+                
+        
+        p1 = self.win.addPlot(title="Basic array plotting", x=[1,4,5,3,5],y=[4,7,4,3,5]) 
+        p2 = self.win.addPlot(title="bling", x=[self.calc.z2_locus()[0]], y=[self.calc.z2_locus()[1]])
         
         adjust_spines(self.widget1.canvas.z2_flt)
         
